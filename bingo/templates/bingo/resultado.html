@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado — Bingo SGF 2026</title>
+</head>
+<body>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
+  :root {
+    --pink: #C2018C;
+    --pink-border: rgba(194,1,140,0.35);
+    --pink-glow: rgba(194,1,140,0.4);
+    --bg: #06061a;
+    --surface: #0d0d2b;
+    --white: #ffffff;
+    --muted: rgba(255,255,255,0.4);
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--white); }
+
+  .page { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .title-bar { text-align: center; }
+  .title-bar h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--pink); letter-spacing: 0.1em; }
+  .title-bar p { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .podio { display: flex; align-items: flex-end; justify-content: center; gap: 1rem; }
+
+  .podio-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; max-width: 180px; }
+  .podio-item .avatar { border-radius: 50%; border: 2px solid var(--medal-color); }
+  .podio-item .nome { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.05em; text-align: center; }
+  .podio-item .acertos-num { font-size: 13px; color: var(--muted); }
+  .podio-item .acertos-num span { color: var(--medal-color); font-weight: 700; }
+
+  .podio-bloco { width: 100%; background: var(--surface); border: 1px solid var(--medal-color); border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: center; }
+  .podio-bloco .pos { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--medal-color); }
+
+  .p1 { --medal-color: var(--gold); }
+  .p1 .avatar { width: 80px; height: 80px; }
+  .p1 .podio-bloco { height: 90px; }
+
+  .p2 { --medal-color: var(--silver); }
+  .p2 .avatar { width: 64px; height: 64px; }
+  .p2 .podio-bloco { height: 65px; }
+
+  .p3 { --medal-color: var(--bronze); }
+  .p3 .avatar { width: 56px; height: 56px; }
+  .p3 .podio-bloco { height: 45px; }
+
+  .lista-section { background: var(--surface); border: 1px solid var(--pink-border); border-radius: 12px; overflow: hidden; }
+  .lista-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--pink-border); }
+  .lista-header span { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--pink); }
+
+  .lista-item { display: flex; align-items: center; gap: 12px; padding: 0.6rem 1rem; border-bottom: 1px solid rgba(194,1,140,0.12); }
+  .lista-item:last-child { border-bottom: none; }
+  .lista-item .pos { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted); min-width: 24px; text-align: center; }
+  .lista-item .avatar-sm { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--pink-border); flex-shrink: 0; }
+  .lista-item .nome { font-weight: 600; font-size: 14px; flex: 1; }
+  .lista-item .badge { background: rgba(194,1,140,0.15); border: 1px solid var(--pink-border); color: var(--pink); font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 20px; white-space: nowrap; }
+
+  .escolhas-section { background: var(--surface); border: 1px solid var(--pink-border); border-radius: 12px; padding: 1rem; }
+  .escolhas-section .sec-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--pink); margin-bottom: 0.75rem; }
+  .escolhas-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .escolhas-grid .num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; background: var(--pink); color: var(--white); width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+</style>
+
+<div class="page">
+  <div class="title-bar">
+    <h1>Apuração</h1>
+    <p>Bingo SGF 2026 — Resultado</p>
+  </div>
+  <div class="escolhas-section">
+    <div class="sec-label">Números sorteados</div>
+    <div id="escolhas-grid" class="escolhas-grid"></div>
+  </div>
+  <div id="podio" class="podio"></div>
+
+  <div class="lista-section">
+    <div class="lista-header"><span>Classificação geral</span></div>
+    <div id="lista"></div>
+  </div>
+
+
+</div>
+
+<script>
+const AVATAR_BASE = "https://cdn.discordapp.com/embed/avatars/0.png";
+
+const resultados = {{ resultados_json|safe }};
+const escolhas = {{ escolhas_json|safe }};
+
+function avatar(url) {
+  return url || AVATAR_BASE;
+}
+
+function renderPodio(top3) {
+  const ordem = [1, 0, 2];
+  const classes = ['p2', 'p1', 'p3'];
+  const posLabels = ['2', '1', '3'];
+  const podio = document.getElementById('podio');
+  podio.innerHTML = '';
+
+  ordem.forEach((idx, i) => {
+    const r = top3[idx];
+    if (!r) return;
+    const div = document.createElement('div');
+    div.className = `podio-item ${classes[i]}`;
+    div.innerHTML = `
+      <img class="avatar" src="${avatar(r.avatar_url)}" alt="${r.jogador}" onerror="this.src='${AVATAR_BASE}'">
+      <div class="nome">${r.jogador}</div>
+      <div class="acertos-num"><span>${r.total_iguais}</span> acertos</div>
+      <div class="podio-bloco"><span class="pos">${posLabels[i]}</span></div>
+    `;
+    podio.appendChild(div);
+  });
+}
+
+function renderLista(resto) {
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+  resto.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'lista-item';
+    div.innerHTML = `
+      <span class="pos">${i + 4}</span>
+      <img class="avatar-sm" src="${avatar(r.avatar_url)}" alt="${r.jogador}" onerror="this.src='${AVATAR_BASE}'">
+      <span class="nome">${r.jogador}</span>
+      <span class="badge">${r.total_iguais} acertos</span>
+    `;
+    lista.appendChild(div);
+  });
+}
+
+function renderEscolhas(nums) {
+  const grid = document.getElementById('escolhas-grid');
+  grid.innerHTML = '';
+  nums.forEach(n => {
+    const span = document.createElement('span');
+    span.className = 'num';
+    span.textContent = n;
+    grid.appendChild(span);
+  });
+}
+
+if (resultados.length) {
+  renderPodio(resultados.slice(0, 3));
+  renderLista(resultados.slice(3));
+  renderEscolhas(escolhas);
+} else {
+  document.querySelector('.page').innerHTML += '<p style="text-align:center;color:var(--muted);padding:2rem;">Nenhum resultado ainda.</p>';
+}
+</script>
+</body>
+</html>

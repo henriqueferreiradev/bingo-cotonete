@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aposta Confirmada - Bingo SGF 2026</title>
+    <link rel="stylesheet" href="{% static 'css/confirmacao.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <main class="page">
+
+        <div class="print-area" id="print-area">
+            <div class="banner-wrap">
+                <img class="banner-img" src="{% static 'img/banner.png' %}" alt="Bingo Summer Game Fest 2026">
+            </div>
+
+            <div class="card-cart">
+                <div class="cart-header">
+                    <div>
+                        <p class="card-label">Aposta confirmada</p>
+                        <div class="user-info">
+                            <img class="avatar" src="{{ avatar_url }}" alt="Avatar do usuário">
+                            <p class="nick">{{ request.user.username }}</p>
+                        </div>
+                    </div>
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C2018C" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4a2 2 0 0 1-2-2V5h4" />
+                        <path d="M18 9h2a2 2 0 0 0 2-2V5h-4" />
+                        <path d="M12 17v4" />
+                        <path d="M8 21h8" />
+                        <path d="M6 5h12v7a6 6 0 0 1-12 0V5Z" />
+                    </svg>
+                </div>
+
+                <p class="card-hint">Suas <strong>15 apostas</strong> para o Summer Game Fest 2026</p>
+
+                <div class="card-grid confirmacao-grid">
+                    {% for item in itens %}
+                    <div class="card-item card-item--selecionado"><span class="num">{{ item.num }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <p class="rodape-confirmacao">Cotonete Society &mdash; A gente assiste. A gente teoriza. A gente ganha.
+                </p>
+            </div>
+        </div>
+
+        <button class="btn-confirmar btn-confirmar--ativo" id="btn-print">
+            Salvar imagem
+        </button>
+
+        {% if apuracao_realizada %}
+        <a href="/resultado/" class="btn-confirmar btn-confirmar--ativo" style="text-decoration:none;text-align:center;margin-top:0.5rem;">
+            Ver resultado
+        </a>
+        {% endif %}
+
+    </main>
+
+    <script>
+        document.getElementById('btn-print').addEventListener('click', () => {
+            const area = document.getElementById('print-area');
+            const btn = document.getElementById('btn-print');
+            btn.textContent = 'Gerando...';
+            btn.disabled = true;
+
+            html2canvas(area, {
+                backgroundColor: '#06061a',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'aposta-sgf2026.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                btn.textContent = 'Imagem salva!';
+                setTimeout(() => {
+                    btn.textContent = 'Salvar imagem';
+                    btn.disabled = false;
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+
+</html>

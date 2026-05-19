@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --bg: #06061a;
+    --surface: #0d0d2b;
+    --surface2: #12123a;
+    --pink: #C2018C;
+    --pink-dim: rgba(194, 1, 140, 0.12);
+    --pink-border: rgba(194, 1, 140, 0.35);
+    --pink-glow: rgba(194, 1, 140, 0.4);
+    --purple: #6D398E;
+    --white: #ffffff;
+    --muted: rgba(255, 255, 255, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    padding: 2rem 1.5rem;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.card-label {
+    color: var(--pink);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.counter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+}
+
+.counter span {
+    color: var(--white);
+}
+
+.card-hint {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}
+
+.card-hint strong {
+    color: var(--white);
+    font-weight: 600;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.card-item {
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid var(--pink-border);
+    background: var(--surface);
+    padding: 28px 10px 10px;
+    cursor: pointer;
+    transition: all .18s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    min-height: 120px;
+    width: 150px;
+}
+
+.card-item:hover:not(:has(:checked)) {
+    background: var(--pink-dim);
+    border-color: var(--pink);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--pink-glow);
+}
+
+.card-item:has(:checked) {
+    background: var(--pink);
+    border-color: var(--pink);
+    box-shadow: 0 0 20px var(--pink-glow);
+}
+
+.card-item:has(:checked) .num {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.card-item:has(:checked) .cat-name {
+    color: #ffffff;
+}
+
+.card-item-checkbox {
+    display: none;
+}
+
+.num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-style: italic;
+    position: absolute;
+    top: 7px;
+    left: 9px;
+    font-size: 32px;
+    color: var(--pink);
+    line-height: 1;
+    letter-spacing: 0.02em;
+}
+
+.cat-name {
+    color: var(--white);
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: clamp(10px, 0.75vw, 12px);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+}
+
+.btn-confirmar {
+    width: 100%;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--pink-border);
+    border-radius: 10px;
+    padding: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: not-allowed;
+    transition: all .2s ease;
+    margin-top: 4px;
+}
+
+.btn-confirmar:not(:disabled) {
+    background: var(--pink);
+    color: var(--white);
+    border-color: var(--pink);
+    cursor: pointer;
+    box-shadow: 0 0 24px var(--pink-glow);
+}
+
+.btn-confirmar:not(:disabled):hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+@media screen and (max-width: 768px) {
+
+    .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

@@ -1,0 +1,47 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo - Summer Game Fest 2026</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+
+<body>
+    <main class="page">
+        <div class="banner-wrap">
+            <img class="banner-img" src="{% static 'img/banner.png' %}" alt="Bingo Summer Game Fest 2026">
+        </div>
+
+        <div class="card">
+            <form method="post" action='{%  provider_login_url "discord"%}'>
+                {% csrf_token %}
+                <input type="hidden" name="process" value="login">
+                <button type="submit" class="btn-discord">Entrar com Discord</button>
+
+
+            </form>
+            <!-- <p class="card-hint">Você terá <strong>15 escolhas</strong> entre os 30 possíveis anúncios.</p> -->
+        </div>
+    </main>
+
+    <script>
+        function acessar() {
+            const nick = document.getElementById('nick').value.trim();
+            if (!nick) {
+                document.getElementById('nick').focus();
+                return;
+            }
+            window.location.href = `/bingo/cartela/?nick=${encodeURIComponent(nick)}`;
+        }
+
+        document.getElementById('nick').addEventListener('keydown', e => {
+            if (e.key === 'Enter') acessar();
+        });
+    </script>
+</body>
+
+</html>

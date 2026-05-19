@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --bg: #06061a;
+    --surface: #0d0d2b;
+    --pink: #C2018C;
+    --pink-dim: rgba(194, 1, 140, 0.12);
+    --pink-border: rgba(194, 1, 140, 0.35);
+    --pink-glow: rgba(194, 1, 140, 0.4);
+    --white: #ffffff;
+    --muted: rgba(255, 255, 255, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    padding: 1.5rem;
+}
+
+.page {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.print-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--bg);
+    border-radius: 16px;
+}
+
+.banner-wrap {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.banner-img {
+    width: 100%;
+    display: block;
+}
+
+.card-cart {
+    background: var(--surface);
+    border: 1px solid var(--pink-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.card-label {
+    color: var(--pink);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.nick {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--white);
+    letter-spacing: 0.05em;
+}
+
+.card-hint {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.card-hint strong {
+    color: var(--white);
+}
+
+/* ── GRID ── */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+/* ── CARD ITEM ── */
+.card-item {
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid var(--pink-border);
+    background: var(--surface);
+    background: var(--pink);
+
+    cursor: pointer;
+    transition: all .18s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    min-height: 120px;
+    width: 150px;
+}
+
+.card-item:hover:not(:has(:checked)) {
+    background: var(--pink-dim);
+    border-color: var(--pink);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--pink-glow);
+}
+
+.card-item:has(:checked) {
+    background: var(--pink);
+    border-color: var(--pink);
+    box-shadow: 0 0 20px var(--pink-glow);
+}
+
+.card-item:has(:checked) .num {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.card-item:has(:checked) .cat-name {
+    color: #ffffff;
+}
+
+.card-item-checkbox {
+    display: none;
+}
+
+/* ── NÚMERO ── */
+.num {
+    font-family: 'Bebas Neue', sans-serif;
+
+    top: 7px;
+    left: 9px;
+    font-size: 60px;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: 0.02em;
+}
+
+/* ── TEXTO DO CARD ── */
+.cat-name {
+    color: var(--white);
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: clamp(10px, 0.75vw, 12px);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+}
+
+.rodape-confirmacao {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--pink-border);
+}
+
+.btn-confirmar {
+    width: 100%;
+    background: var(--pink);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 0 24px var(--pink-glow);
+    transition: all .2s ease;
+}
+
+.btn-confirmar:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.btn-confirmar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 4px;
+}
+
+.avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 1px solid var(--pink-border);
+}

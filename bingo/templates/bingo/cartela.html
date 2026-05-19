@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartela</title>
+    <link rel="stylesheet" href="{% static 'css/cartela.css' %}">
+
+</head>
+
+<body>
+    <main class="page">
+        <div class="card-cart">
+            <div class="cart-header">
+                <p class="card-label">Olá, {{ request.user.username }}! Faça suas escolhas</p>
+                <p class="counter"><span id="count">0</span>/15</p>
+            </div>
+            <p class="card-hint">Você terá <strong>15 escolhas</strong> entre os 30 possíveis anúncios.</p>
+
+            <div class="card-grid">
+                {% for item in itens %}
+                <label class="card-item">
+                    <input class="card-item-checkbox" type="checkbox" name="selecoes" value="{{ item.id }}">
+                    <span class="num">{{ item.num }}</span>
+                    <p class="cat-name">{{ item.nome }}</p>
+                </label>
+                {% endfor %}
+            </div>
+
+            <button class="btn-confirmar" id="btn-confirmar" disabled>Confirmar apostas</button>
+        </div>
+    </main>
+    <script src="{% static 'js/base.js' %}"></script>
+
+</body>
+
+</html>
