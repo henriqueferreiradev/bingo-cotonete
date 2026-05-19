@@ -103,6 +103,9 @@ body {
     cursor: pointer;
     white-space: nowrap;
     transition: opacity 0.2s;
+        display: inline-flex;
+    align-items: center;
+    gap: .5em;
 }
 
 .btn-discord:hover {
