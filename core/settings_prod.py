@@ -3,9 +3,9 @@ from .settings import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['seu-app.onrender.com']
+ALLOWED_HOSTS = ['bingo-cotonete.onrender.com']
 
-CSRF_TRUSTED_ORIGINS = ['https://seu-app.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://bingo-cotonete.onrender.com']
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
