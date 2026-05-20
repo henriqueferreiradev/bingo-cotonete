@@ -28,6 +28,7 @@ app = SocialApp.objects.create(
 )
 app.sites.add(site)
 print('SocialApp recriado com client_id:', os.environ.get('DISCORD_CLIENT_ID'))
+print('Secret salvo (primeiros 6 chars):', os.environ.get('DISCORD_SECRET', '')[:6])
 
 # Superuser
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
