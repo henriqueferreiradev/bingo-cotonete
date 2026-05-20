@@ -195,7 +195,7 @@ body {
     }
 
     .cat-name {
-        font-size: clamp(9px, 3vw, 11px);
+        font-size: 8px;
     }
 
     .counter {
