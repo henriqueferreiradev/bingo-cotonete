@@ -19,3 +19,5 @@ RUN python manage.py collectstatic --no-input --settings=core.settings_prod
 EXPOSE 8002
 
 CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8002", "--workers", "2"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
