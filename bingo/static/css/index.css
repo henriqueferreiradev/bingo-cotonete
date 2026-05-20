@@ -259,3 +259,29 @@ body {
     font-weight: 700;
     flex-shrink: 0;
 }
+
+@media screen and (max-width: 600px) {
+    body {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .page {
+        gap: 1.25rem;
+    }
+
+    .info-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card {
+        padding: 1.25rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .btn-discord {
+        width: 100%;
+        justify-content: center;
+    }
+}
