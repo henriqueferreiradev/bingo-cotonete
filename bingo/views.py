@@ -139,6 +139,8 @@ def resultado(request):
         return render(request, 'bingo/resultado.html', {
             'resultados_json': json.dumps([]),
             'escolhas_json': json.dumps([]),
+            'empatados_json': json.dumps([]),
+            'tem_empate': False,
         })
 
     numeros_vencedores = apuracao.escolhas
@@ -153,9 +155,15 @@ def resultado(request):
 
     resultado.sort(key=lambda x: x['total_iguais'], reverse=True)
 
+    max_acertos = resultado[0]['total_iguais'] if resultado else 0
+    empatados = [r for r in resultado if r['total_iguais'] == max_acertos] if resultado else []
+    tem_empate = len(empatados) > 1
+
     return render(request, 'bingo/resultado.html', {
         'resultados_json': json.dumps(resultado),
         'escolhas_json': json.dumps(numeros_vencedores),
+        'empatados_json': json.dumps(empatados),
+        'tem_empate': tem_empate,
     })
 
 
