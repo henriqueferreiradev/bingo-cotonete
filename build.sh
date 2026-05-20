@@ -16,6 +16,19 @@ from django.contrib.auth.models import User
 Site.objects.update_or_create(id=1, defaults={'domain': 'bingo-cotonete.onrender.com', 'name': 'bingo-cotonete'})
 print('Site configurado')
 
+python manage.py shell --settings=core.settings_prod -c "
+import requests, os
+r = requests.post('https://discord.com/api/oauth2/token', data={
+    'client_id': os.environ.get('DISCORD_CLIENT_ID'),
+    'client_secret': os.environ.get('DISCORD_SECRET'),
+    'grant_type': 'client_credentials',
+    'scope': 'identify'
+})
+print('Discord API status:', r.status_code)
+print('Discord API response:', r.json())
+"
+
+
 # Superuser
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
 password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '')
