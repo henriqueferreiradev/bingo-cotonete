@@ -12,9 +12,7 @@ import os
 from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp
 from django.contrib.auth.models import User
-from allauth.socialaccount.models import SocialApp
-deleted = SocialApp.objects.filter(provider='discord').delete()
-print('SocialApps deletados:', deleted)
+
 # Site
 Site.objects.update_or_create(id=1, defaults={'domain': 'bingo-cotonete.onrender.com', 'name': 'bingo-cotonete'})
 print('Site configurado')
