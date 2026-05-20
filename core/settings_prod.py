@@ -61,6 +61,10 @@ LOGGING = {
 SOCIALACCOUNT_PROVIDERS = {
     'discord': {
         'SCOPE': ['identify', 'email'],
+        'APP': {
+            'client_id': '1506482126328168540',
+            'secret': 'frS2xSbg9J3wBh5jlY69yy7HxREX1x3P',
+        }
     }
 }
 
