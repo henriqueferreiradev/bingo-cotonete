@@ -24,15 +24,3 @@ if password and not User.objects.filter(username=username).exists():
 else:
     print('Superuser ja existe ou senha nao definida')
 "
-
-python manage.py shell --settings=core.settings_prod -c "
-import requests, os
-r = requests.post('https://discord.com/api/oauth2/token', data={
-    'client_id': os.environ.get('DISCORD_CLIENT_ID'),
-    'client_secret': os.environ.get('DISCORD_SECRET'),
-    'grant_type': 'client_credentials',
-    'scope': 'identify'
-})
-print('Discord API status:', r.status_code)
-print('Discord API response:', r.json())
-"
