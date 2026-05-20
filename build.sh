@@ -19,17 +19,15 @@ print('Site configurado')
 
 # SocialApp Discord
 site = Site.objects.get(id=1)
-if not SocialApp.objects.filter(provider='discord').exists():
-    app = SocialApp.objects.create(
-        provider='discord',
-        name='Discord',
-        client_id=os.environ.get('DISCORD_CLIENT_ID'),
-        secret=os.environ.get('DISCORD_SECRET'),
-    )
-    app.sites.add(site)
-    print('SocialApp Discord criado')
-else:
-    print('SocialApp Discord ja existe')
+SocialApp.objects.filter(provider='discord').delete()
+app = SocialApp.objects.create(
+    provider='discord',
+    name='Discord',
+    client_id=os.environ.get('DISCORD_CLIENT_ID'),
+    secret=os.environ.get('DISCORD_SECRET'),
+)
+app.sites.add(site)
+print('SocialApp recriado com client_id:', os.environ.get('DISCORD_CLIENT_ID'))
 
 # Superuser
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
