@@ -1,30 +1,28 @@
 import os
+import dj_database_url
 from .settings import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['bingo-cotonete.onrender.com']
+ALLOWED_HOSTS = ['bingo.kordan.tech']
 
-CSRF_TRUSTED_ORIGINS = ['https://bingo-cotonete.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://bingo.kordan.tech']
 
-# Render (and most PaaS) terminate SSL at the proxy and forward requests as
-# HTTP internally. Without this, request.build_absolute_uri() returns http://,
-# so allauth sends redirect_uri=http://... to Discord while the Developer Portal
-# has https://... registered → Discord token exchange returns 401.
+# Nginx on the host terminates SSL and forwards requests as HTTP internally.
+# Without this, request.build_absolute_uri() returns http://, so allauth sends
+# redirect_uri=http://... to Discord while the Developer Portal has https://...
+# registered → Discord token exchange returns 401.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('PGDATABASE'),
-        'USER': os.environ.get('PGUSER'),
-        'PASSWORD': os.environ.get('PGPASSWORD'),
-        'HOST': os.environ.get('PGHOST'),
-        'PORT': os.environ.get('PGPORT', '5432'),
-    }
+    'default': dj_database_url.parse(
+        os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
 }
 
 MIDDLEWARE = [
