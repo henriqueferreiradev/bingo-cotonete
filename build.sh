@@ -10,25 +10,11 @@ python manage.py migrate --settings=core.settings_prod
 python manage.py shell --settings=core.settings_prod -c "
 import os
 from django.contrib.sites.models import Site
-from allauth.socialaccount.models import SocialApp
 from django.contrib.auth.models import User
 
 # Site
 Site.objects.update_or_create(id=1, defaults={'domain': 'bingo-cotonete.onrender.com', 'name': 'bingo-cotonete'})
 print('Site configurado')
-
-# SocialApp Discord
-site = Site.objects.get(id=1)
-SocialApp.objects.filter(provider='discord').delete()
-app = SocialApp.objects.create(
-    provider='discord',
-    name='Discord',
-    client_id=os.environ.get('DISCORD_CLIENT_ID'),
-    secret=os.environ.get('DISCORD_SECRET'),
-)
-app.sites.add(site)
-print('SocialApp recriado com client_id:', os.environ.get('DISCORD_CLIENT_ID'))
-print('Secret salvo (primeiros 6 chars):', os.environ.get('DISCORD_SECRET', '')[:6])
 
 # Superuser
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
