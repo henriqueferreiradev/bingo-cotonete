@@ -26,7 +26,7 @@ body {
 
 .page {
     width: 100%;
-    max-width: 560px;
+    max-width: 650px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -103,7 +103,7 @@ body {
     cursor: pointer;
     white-space: nowrap;
     transition: opacity 0.2s;
-        display: inline-flex;
+    display: inline-flex;
     align-items: center;
     gap: .5em;
 }
@@ -168,4 +168,94 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.info-card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--pink-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(194, 1, 140, 0.08);
+    border: 1px solid var(--pink-border);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.info-icon {
+    font-size: 20px;
+}
+
+.info-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 13px;
+    color: var(--white);
+    font-weight: 700;
+}
+
+.info-value--premio {
+    color: #FFD700;
+}
+
+.info-steps-title {
+    font-size: 11px;
+    color: var(--pink);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+}
+
+.info-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.info-step strong {
+    color: var(--white);
+}
+
+.step-num {
+    background: var(--pink);
+    color: var(--white);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
 }

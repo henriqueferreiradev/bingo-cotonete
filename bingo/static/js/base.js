@@ -57,6 +57,10 @@ btn.addEventListener('click', async function () {
         if (!response.ok) {
             throw new Error('Error saving cartela');
         }
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
     } catch (error) {
         console.error('Error saving cartela:', error);
     }

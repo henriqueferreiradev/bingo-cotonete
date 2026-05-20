@@ -37,3 +37,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 SITE_ID = 1
+
+
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+Site.objects.update_or_create(id=1, defaults={'domain': 'localhost:8001', 'name': 'localhost'})
+site = Site.objects.get(id=1)
+if not SocialApp.objects.filter(provider='discord').exists():
+    app = SocialApp.objects.create(
+        provider='discord',
+        name='Discord',
+        client_id='1502749650828918874',
+        secret='VMRaVhyafsPJRWuh354dv_sFwntPqT8C',
+
+    )
+    app.sites.add(site)
+    print('Criado!')
