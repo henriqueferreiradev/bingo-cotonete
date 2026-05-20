@@ -86,7 +86,7 @@ AUTHENTICATION_BACKENDS = [
 SITE_ID = 1
 SOCIALACCOUNT_PROVIDERS = {
     'discord': {
-        'SCOPE': ['identify', 'email'],
+        'SCOPE': ['identify'],
     }
 }
 
@@ -145,7 +145,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_EMAIL_REQUIRED = False
-SOCIALACCOUNT_EMAIL_REQUIRED = False
-LOGIN_REDIRECT_URL = '/cartela/'
