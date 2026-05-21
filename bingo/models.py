@@ -15,6 +15,7 @@ class Apuracao(models.Model):
     """Singleton — só pode existir um registro. Representa o sorteio realizado."""
     escolhas = models.JSONField(default=list)
     realizada_em = models.DateTimeField(auto_now=True)
+    vencedor_desempate = models.CharField(max_length=150, null=True, blank=True)
 
     def __str__(self):
         return f"Apuração em {self.realizada_em:%d/%m/%Y %H:%M}"

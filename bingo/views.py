@@ -133,6 +133,30 @@ def conferir_cartela(request):
     return JsonResponse({'redirect': '/resultado/'})
 
 
+@login_required(login_url='/')
+@require_POST
+def salvar_vencedor(request):
+    if not request.user.is_staff:
+        return JsonResponse({'erro': 'Acesso negado.'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest('JSON inválido.')
+
+    vencedor = data.get('vencedor', '').strip()
+    if not vencedor:
+        return HttpResponseBadRequest('Campo vencedor obrigatório.')
+
+    apuracao = Apuracao.get()
+    if not apuracao:
+        return JsonResponse({'erro': 'Nenhuma apuração encontrada.'}, status=404)
+
+    apuracao.vencedor_desempate = vencedor
+    apuracao.save()
+    return JsonResponse({'ok': True})
+
+
 def resultado(request):
     apuracao = Apuracao.get()
     if not apuracao:
@@ -141,6 +165,7 @@ def resultado(request):
             'escolhas_json': json.dumps([]),
             'empatados_json': json.dumps([]),
             'tem_empate': False,
+            'vencedor_desempate': None,
         })
 
     numeros_vencedores = apuracao.escolhas
@@ -164,6 +189,7 @@ def resultado(request):
         'escolhas_json': json.dumps(numeros_vencedores),
         'empatados_json': json.dumps(empatados),
         'tem_empate': tem_empate,
+        'vencedor_desempate': apuracao.vencedor_desempate,
     })
 
 

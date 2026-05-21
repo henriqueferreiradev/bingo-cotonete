@@ -115,6 +115,9 @@
   .btn-sortear { background: var(--pink); color: var(--white); border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
   .btn-sortear:hover:not(:disabled) { opacity: 0.85; transform: scale(1.03); }
   .btn-sortear:disabled { opacity: 0.5; cursor: not-allowed; }
+  .campeao-banner { background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,215,0,0.04)); border: 1px solid rgba(255,215,0,0.5); border-radius: 12px; padding: 1rem 1.25rem; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+  .campeao-banner-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+  .campeao-banner-nome { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--gold); }
 </style>
 
 <div class="page">
@@ -126,6 +129,13 @@
     <div class="sec-label">Números sorteados</div>
     <div id="escolhas-grid" class="escolhas-grid"></div>
   </div>
+  {% if vencedor_desempate %}
+  <div class="campeao-banner">
+    <div class="campeao-banner-label">Vencedor do Desempate</div>
+    <div class="campeao-banner-nome">{{ vencedor_desempate }}</div>
+  </div>
+  {% endif %}
+
   {% if tem_empate %}
   <div class="empate-section" id="empate-section">
     <div class="empate-badge" id="empate-badge">Desempate — Melhor de 3</div>
@@ -216,6 +226,26 @@ if (resultados.length) {
 
 {% if tem_empate %}
 const empatados = {{ empatados_json|safe }};
+
+function getCookie(name) {
+  var v = null;
+  document.cookie.split(';').forEach(function(c) {
+    var parts = c.trim().split('=');
+    if (parts[0] === name) v = decodeURIComponent(parts[1]);
+  });
+  return v;
+}
+
+function salvarVencedorDesempate(username) {
+  fetch('/resultado/salvar-vencedor/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ vencedor: username })
+  });
+}
 
 var wins = new Array(empatados.length).fill(0);
 var currentRound = 1;
@@ -337,6 +367,7 @@ function sortearRodada() {
 
         if (wins[vencedorIdx] >= 3) {
           campeoIdx = vencedorIdx;
+          salvarVencedorDesempate(empatados[campeoIdx].jogador);
           setTimeout(function() {
             cards.forEach(function(c, i) {
               c.classList.remove('empate-card--vencedor', 'empate-card--ativo');

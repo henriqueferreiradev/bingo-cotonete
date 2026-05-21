@@ -12,5 +12,5 @@ urlpatterns = [
     
     path('cartela/salvar/', salvar_cartela, name='salvar_cartela'),
     path('cartela/conferir/', conferir_cartela, name='conferir_cartela'),
-    
+    path('resultado/salvar-vencedor/', salvar_vencedor, name='salvar_vencedor'),
     ]
