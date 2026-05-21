@@ -92,19 +92,26 @@
     .btn-sortear { font-size: 18px; padding: 10px 22px; }
   }
 
-  /* Empate */
+  /* Empate / MD3 */
   .empate-section { background: var(--surface); border: 1px solid rgba(255,215,0,0.35); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
   .empate-badge { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.4); color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; }
+  .empate-round-label { font-size: 12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; }
   .empate-display { text-align: center; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 1rem 1.5rem; width: 100%; min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
   .empate-display-nome { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.05em; color: var(--white); }
   .empate-display-msg { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; min-height: 20px; }
   .empate-cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
-  .empate-card { display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); border: 2px solid var(--pink-border); border-radius: 10px; padding: 10px 14px; min-width: 80px; transition: border-color 0.1s, transform 0.1s, background 0.1s, box-shadow 0.1s; }
+  .empate-card { display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); border: 2px solid var(--pink-border); border-radius: 10px; padding: 10px 14px; min-width: 80px; transition: border-color 0.1s, transform 0.1s, background 0.1s, box-shadow 0.1s, opacity 0.4s; }
   .empate-card--ativo { border-color: var(--gold) !important; background: rgba(255,215,0,0.08) !important; transform: scale(1.05); }
   .empate-card--vencedor { border-color: var(--gold) !important; background: rgba(255,215,0,0.15) !important; transform: scale(1.05); box-shadow: 0 0 18px rgba(255,215,0,0.35); }
+  .empate-card--campeao { border-color: var(--gold) !important; background: rgba(255,215,0,0.2) !important; transform: scale(1.1) !important; box-shadow: 0 0 32px rgba(255,215,0,0.55) !important; opacity: 1 !important; }
+  .empate-card--dimmed { opacity: 0.4; }
   .empate-card .avatar-empate { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--pink-border); background: var(--surface); overflow: hidden; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--pink); flex-shrink: 0; }
   .empate-card .avatar-empate img { width: 100%; height: 100%; object-fit: cover; }
   .empate-card .card-nome { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 0.05em; text-align: center; color: var(--white); }
+  .win-dots { display: flex; gap: 5px; margin-top: 2px; }
+  .win-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--pink); background: transparent; transition: background 0.3s, border-color 0.3s; }
+  .win-dot--filled { background: var(--pink); border-color: var(--pink); }
+  .win-dot--gold { background: var(--gold); border-color: var(--gold); }
   .btn-sortear { background: var(--pink); color: var(--white); border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
   .btn-sortear:hover:not(:disabled) { opacity: 0.85; transform: scale(1.03); }
   .btn-sortear:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -121,13 +128,14 @@
   </div>
   {% if tem_empate %}
   <div class="empate-section" id="empate-section">
-    <div class="empate-badge" id="empate-badge">Empate detectado</div>
+    <div class="empate-badge" id="empate-badge">Desempate — Melhor de 3</div>
+    <div class="empate-round-label" id="round-label">Rodada 1</div>
     <div class="empate-display">
       <div class="empate-display-nome" id="display-nome">—</div>
       <div class="empate-display-msg" id="display-msg"></div>
     </div>
     <div class="empate-cards" id="empate-cards"></div>
-    <button class="btn-sortear" id="btn-sortear" onclick="sortearVencedor()">Sortear vencedor</button>
+    <button class="btn-sortear" id="btn-sortear" onclick="sortearRodada()">Sortear rodada</button>
   </div>
   {% endif %}
 
@@ -137,8 +145,6 @@
     <div class="lista-header"><span>Classificação geral</span></div>
     <div id="lista"></div>
   </div>
-
-
 </div>
 
 <script>
@@ -211,23 +217,27 @@ if (resultados.length) {
 {% if tem_empate %}
 const empatados = {{ empatados_json|safe }};
 
+var wins = new Array(empatados.length).fill(0);
+var currentRound = 1;
+var campeoIdx = -1;
+
 (function initEmpate() {
-  const badge = document.getElementById('empate-badge');
-  const container = document.getElementById('empate-cards');
+  var badge = document.getElementById('empate-badge');
+  var container = document.getElementById('empate-cards');
   if (!badge || !container || !empatados.length) return;
 
-  badge.textContent = 'Empate detectado — ' + empatados[0].total_iguais + ' acertos';
+  badge.textContent = 'Desempate — Melhor de 3 (' + empatados[0].total_iguais + ' acertos)';
 
   empatados.forEach(function(p, idx) {
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'empate-card';
     card.id = 'empate-card-' + idx;
 
-    const avatarDiv = document.createElement('div');
+    var avatarDiv = document.createElement('div');
     avatarDiv.className = 'avatar-empate';
 
     if (p.avatar_url) {
-      const img = document.createElement('img');
+      var img = document.createElement('img');
       img.src = p.avatar_url;
       img.alt = '';
       img.onerror = function() {
@@ -239,40 +249,64 @@ const empatados = {{ empatados_json|safe }};
       avatarDiv.textContent = p.jogador.charAt(0).toUpperCase();
     }
 
-    const nomeDiv = document.createElement('div');
+    var nomeDiv = document.createElement('div');
     nomeDiv.className = 'card-nome';
     nomeDiv.textContent = p.jogador;
 
+    var dotsDiv = document.createElement('div');
+    dotsDiv.className = 'win-dots';
+    dotsDiv.id = 'win-dots-' + idx;
+    for (var d = 0; d < 3; d++) {
+      var dot = document.createElement('div');
+      dot.className = 'win-dot';
+      dot.id = 'dot-' + idx + '-' + d;
+      dotsDiv.appendChild(dot);
+    }
+
     card.appendChild(avatarDiv);
     card.appendChild(nomeDiv);
+    card.appendChild(dotsDiv);
     container.appendChild(card);
   });
 })();
 
-function sortearVencedor() {
-  const n = empatados.length;
-  const totalRodadas = 25 + Math.floor(Math.random() * 15);
-  const vencedorIdx = Math.floor(Math.random() * n);
+function updateDots(playerIdx, useGold) {
+  for (var d = 0; d < 3; d++) {
+    var dot = document.getElementById('dot-' + playerIdx + '-' + d);
+    if (!dot) continue;
+    dot.classList.remove('win-dot--filled', 'win-dot--gold');
+    if (d < wins[playerIdx]) {
+      dot.classList.add(useGold ? 'win-dot--gold' : 'win-dot--filled');
+    }
+  }
+}
 
-  const seq = [];
-  let cur = Math.floor(Math.random() * n);
-  for (let i = 0; i < totalRodadas - 1; i++) {
+function sortearRodada() {
+  if (campeoIdx !== -1) return;
+
+  var n = empatados.length;
+  var totalSteps = 25 + Math.floor(Math.random() * 15);
+  var vencedorIdx = Math.floor(Math.random() * n);
+
+  var seq = [];
+  var cur = Math.floor(Math.random() * n);
+  for (var i = 0; i < totalSteps - 1; i++) {
     seq.push(cur);
     cur = (cur + 1) % n;
   }
   seq.push(vencedorIdx);
 
-  const btn = document.getElementById('btn-sortear');
+  var btn = document.getElementById('btn-sortear');
   btn.disabled = true;
   document.getElementById('display-msg').textContent = '';
 
-  const cards = document.querySelectorAll('.empate-card');
+  var cards = document.querySelectorAll('.empate-card');
   cards.forEach(function(c) { c.classList.remove('empate-card--vencedor', 'empate-card--ativo'); });
 
   function calcDelay(s) {
-    var threshold = totalRodadas * 0.6;
+    var threshold = totalSteps * 0.6;
     if (s < threshold) return 80;
-    var prog = (s - threshold) / (totalRodadas - threshold);
+    var prog = (s - threshold) / (totalSteps - threshold);
     return Math.round(80 + prog * prog * 600);
   }
 
@@ -288,14 +322,50 @@ function sortearVencedor() {
 
     if (isLast) {
       setTimeout(function() {
+        wins[vencedorIdx]++;
+
         cards.forEach(function(c, i) {
           c.classList.remove('empate-card--ativo');
           c.classList.toggle('empate-card--vencedor', i === vencedorIdx);
         });
+
+        updateDots(vencedorIdx, false);
+
         document.getElementById('display-nome').textContent = empatados[vencedorIdx].jogador;
-        document.getElementById('display-msg').textContent = '🏆 VENCEDOR SORTEADO!';
-        btn.disabled = false;
-        btn.textContent = 'Sortear novamente';
+        document.getElementById('display-msg').textContent = 'Venceu a Rodada ' + currentRound + '!';
+        document.getElementById('round-label').textContent = 'Rodada ' + currentRound;
+
+        if (wins[vencedorIdx] >= 3) {
+          campeoIdx = vencedorIdx;
+          setTimeout(function() {
+            cards.forEach(function(c, i) {
+              c.classList.remove('empate-card--vencedor', 'empate-card--ativo');
+              if (i === campeoIdx) {
+                c.classList.add('empate-card--campeao');
+              } else {
+                c.classList.add('empate-card--dimmed');
+              }
+            });
+            for (var p = 0; p < empatados.length; p++) {
+              updateDots(p, p === campeoIdx);
+            }
+            document.getElementById('display-nome').textContent = empatados[campeoIdx].jogador;
+            document.getElementById('display-msg').textContent = 'CAMPEÃO DO DESEMPATE!';
+            document.getElementById('round-label').textContent = 'Desempate concluído';
+            btn.style.display = 'none';
+          }, 1200);
+        } else {
+          var maxWins = Math.max.apply(null, wins);
+          setTimeout(function() {
+            cards.forEach(function(c) { c.classList.remove('empate-card--vencedor'); });
+            currentRound++;
+            document.getElementById('round-label').textContent = 'Rodada ' + currentRound;
+            document.getElementById('display-nome').textContent = '—';
+            document.getElementById('display-msg').textContent = '';
+            btn.textContent = 'Próxima rodada (' + maxWins + '/3)';
+            btn.disabled = false;
+          }, 2000);
+        }
       }, 800);
       return;
     }
