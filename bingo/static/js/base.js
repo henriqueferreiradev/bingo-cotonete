@@ -8,13 +8,14 @@ function atualizarBotoes() {
 
     if (count) count.textContent = total;
     if (btn) btn.disabled = total !== MAX;
-    if (btnApurar) btnApurar.disabled = total !== MAX;
+    if (btnApurar) btnApurar.disabled = total < 1;
 }
 checkboxes.forEach(cb => {
     cb.addEventListener('change', () => {
         const marcados = document.querySelectorAll('.card-item-checkbox:checked').length;
 
-        if (cb.checked && marcados > MAX) {
+        // cap de MAX só se aplica na cartela do jogador, não na apuração
+        if (!btnApurar && cb.checked && marcados > MAX) {
             cb.checked = false;
         }
 

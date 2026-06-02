@@ -16,9 +16,9 @@
         <div class="card-cart">
             <div class="cart-header">
                 <p class="card-label">Olá, {{ request.user.username }}! Faça suas escolhas</p>
-                <p class="counter"><span id="count">0</span>/15</p>
+                <p class="counter"><span id="count">0</span> selecionados</p>
             </div>
-            <p class="card-hint">Você terá <strong>15 escolhas</strong> entre os 30 possíveis anúncios.</p>
+            <p class="card-hint">Marque todos os anúncios que foram revelados no evento.</p>
 
             <div class="card-grid">
                 {% for item in itens %}

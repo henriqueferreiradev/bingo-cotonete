@@ -125,8 +125,8 @@ def conferir_cartela(request):
     if not isinstance(numeros_vencedores, list):
         return HttpResponseBadRequest('items deve ser uma lista.')
     numeros_vencedores = [i for i in numeros_vencedores if i in ITEM_IDS_VALIDOS]
-    if len(numeros_vencedores) != 15:
-        return HttpResponseBadRequest('Selecione exatamente 15 itens válidos.')
+    if len(numeros_vencedores) < 1:
+        return HttpResponseBadRequest('Selecione pelo menos 1 item válido.')
 
     Apuracao.salvar(numeros_vencedores)
 
