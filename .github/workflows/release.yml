@@ -22,7 +22,7 @@ concurrency:
 
 env:
   KORDAN_DEPLOY_URL: ${{ vars.KORDAN_DEPLOY_URL }}   # rota usada: <url>/api/v1/candidatas/
-  KORDAN_SYSTEM: bingo1
+  KORDAN_SYSTEM: bingo
   KORDAN_ENVIRONMENT: piloto
   IMAGE: ghcr.io/henriqueferreiradev/bingo-cotonete
   # github.run_number é monotônico neste workflow: decide qual candidata é a mais recente.
