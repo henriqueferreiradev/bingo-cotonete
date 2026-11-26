@@ -1,0 +1,151 @@
+# Registra candidatas do Bingo no ambiente "piloto" da Central de Deploy da Kordan.
+# Fluxo: avisa a Central (aguardando testes) → testes → build e push no GHCR → registra a
+# candidata aprovada pelo digest. Não publica nada: quem publica é o executor, depois da ação de
+# um usuário no painel. Autenticação por OIDC (nenhum segredo de longa duração no GitHub).
+#
+# Desligado até existir a variável de repositório KORDAN_DEPLOY_URL: sem ela todos os jobs são
+# pulados. A instalação atual (docker compose na VPS) não é tocada por este workflow.
+
+name: release
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:   # primeira release do piloto sem precisar de commit novo (rodar na master)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  KORDAN_DEPLOY_URL: ${{ vars.KORDAN_DEPLOY_URL }}   # rota usada: <url>/api/v1/candidatas/
+  KORDAN_SYSTEM: bingo1
+  KORDAN_ENVIRONMENT: piloto
+  IMAGE: ghcr.io/henriqueferreiradev/bingo-cotonete
+  # github.run_number é monotônico neste workflow: decide qual candidata é a mais recente.
+  VERSION: 1.0.${{ github.run_number }}
+  SEQUENCE: ${{ github.run_number }}
+  RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  announce:
+    # A Central confere de novo repository, ref e workflow pelo token OIDC.
+    if: >-
+      github.repository == 'henriqueferreiradev/bingo-cotonete'
+      && github.ref == 'refs/heads/master'
+      && vars.KORDAN_DEPLOY_URL != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Avisar a Central (aguardando testes)
+        env:
+          # Só se a rota de CI estiver atrás do Cloudflare Access (Service Auth).
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: >
+          python .kordan/register_candidate.py --oidc --status pending
+          --version "$VERSION" --sequence "$SEQUENCE" --commit "$GITHUB_SHA" --run-url "$RUN_URL"
+
+  test:
+    needs: announce
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Mesmo perfil e mesmo banco dos slots do piloto. Valores só de CI.
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      SECRET_KEY: ci-somente-testes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # mesma versão da imagem
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Migrações sem pendências
+        run: python manage.py makemigrations --check --dry-run --settings=core.settings_prod
+      - name: Testes
+        run: python manage.py test --noinput --settings=core.settings_prod
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          # Manifesto único (sem índice de atestados): o digest registrado é o que o executor
+          # confere em RepoDigests depois do pull.
+          provenance: false
+          sbom: false
+          tags: ${{ env.IMAGE }}:${{ env.VERSION }}
+          build-args: |
+            APP_COMMIT=${{ github.sha }}
+      - name: Conferir a imagem publicada (digest e commit)
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          docker pull "$IMAGE@$DIGEST"
+          docker image inspect -f '{{join .RepoDigests "\n"}}' "$IMAGE@$DIGEST" | grep -qx "$IMAGE@$DIGEST"
+          test "$(docker run --rm "$IMAGE@$DIGEST" printenv APP_COMMIT)" = "$GITHUB_SHA"
+
+  register:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Registrar candidata aprovada (por digest)
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: >
+          python .kordan/register_candidate.py --oidc --status passed
+          --version "$VERSION" --sequence "$SEQUENCE" --commit "$GITHUB_SHA" --run-url "$RUN_URL"
+          --digest "${{ needs.build.outputs.digest }}" --release-file kordan-release.json
+
+  report-failure:
+    needs: [announce, test, build]
+    if: failure() && needs.announce.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Avisar a Central (testes ou build falharam)
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: >
+          python .kordan/register_candidate.py --oidc --status failed
+          --version "$VERSION" --sequence "$SEQUENCE" --commit "$GITHUB_SHA" --run-url "$RUN_URL"

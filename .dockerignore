@@ -1,0 +1,39 @@
+# Segredos e variáveis locais (só exemplos sem segredo entram no repositório, nunca na imagem)
+.env
+.env.*
+*.env
+*.env.example
+
+# Bancos locais, dumps e backups
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.backup
+*.rar
+*.zip
+*.tar
+*.tar.gz
+backups/
+
+# Gerados no build ou no host
+staticfiles/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Fora do runtime
+.git/
+.github/
+.kordan/
+.vscode/
+.idea/
+deploy/
+nginx/
+*.pem
+*.key
+*.crt

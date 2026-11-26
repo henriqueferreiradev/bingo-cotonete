@@ -3,3 +3,7 @@ db.sqlite3
 .env
 .env.production
 staticfiles/
+*.env
+.env.*
+!*.env.example
+deploy/piloto/.local/

@@ -18,7 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from core import ops
+
 urlpatterns = [
+    path("healthz", ops.healthz),
+    path("version", ops.version),
     path("admin/", admin.site.urls),
     path('', include('bingo.urls')),
     path('accounts/', include('allauth.urls')),

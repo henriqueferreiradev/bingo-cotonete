@@ -1,0 +1,28 @@
+# Alvo bingo1-piloto do executor da Central de Deploy da Kordan.
+# Gerado a partir do bloco do painel e ajustado ao Bingo. Cole em /etc/kordan/targets.toml na VPS
+# (fora do git) e reinicie o executor, que valida o arquivo.
+#
+# [VPS] = depende da VPS (rede, Nginx, caminhos, domínio). O resto vem do código do Bingo.
+
+[targets.bingo1-piloto]
+image_repository = "ghcr.io/henriqueferreiradev/bingo-cotonete"  # imagem do workflow release.yml (sem tag)
+network = "bingo1-piloto"                    # [VPS] rede Docker dos slots, do Nginx do piloto e do Postgres do piloto
+container_prefix = "bingo1-piloto-web"       # slots: bingo1-piloto-web-blue e bingo1-piloto-web-green
+app_port = 8002                              # Gunicorn do CMD da imagem
+health_path = "/healthz"
+version_path = "/version"
+# "/" exige ALLOWED_HOSTS (ver slot_host_header); o CSS confirma os estáticos dentro da imagem.
+smoke_paths = ["/", "/healthz", "/static/css/index.css"]
+# Host enviado nas checagens diretas dos slots. Precisa estar em DJANGO_ALLOWED_HOSTS.
+slot_host_header = "bingo-piloto.kordan.tech"  # [VPS] domínio do piloto
+# Rota pública como o executor a enxerga: bloco HTTP interno do Nginx do piloto
+# (deploy/piloto/nginx/bingo1-piloto.conf), sem redirecionar para HTTPS.
+public_url = "http://bingo1-piloto-nginx"    # [VPS]
+nginx_container = "bingo1-piloto-nginx"      # [VPS]
+upstream_file = "/srv/kordan/nginx-upstreams/bingo1-piloto.conf"  # [VPS] montado no Nginx em /etc/nginx/kordan-upstreams/
+upstream_name = "kordan_bingo1_piloto"
+placeholder_server = "127.0.0.1:8081"
+migrate_command = ["python", "manage.py", "migrate", "--noinput", "--settings=core.settings_prod"]
+env_file = "/etc/kordan/bingo1-piloto.env"   # [VPS] modelo em deploy/piloto/bingo1-piloto.env.example (permissão 600)
+health_timeout = 90
+memory_limit = "512m"                        # medido localmente bem abaixo disso; confirme com docker stats na VPS
